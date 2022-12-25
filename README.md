@@ -15,7 +15,7 @@ Please download `shape_predictor_68_face_landmarks.dat` in release before using 
 If you had `wxPython` and `Dlib` installed, you can run this project on your machine by running:
 
 
-`from Facial_feature_based_system_Demo import system_UI_demo1`
+`from Facial_feature_based_system_Demo import system_UI_demo1
 
 demo = system_UI_demo1()
 
