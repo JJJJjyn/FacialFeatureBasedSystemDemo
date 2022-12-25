@@ -17,6 +17,6 @@ If you had `wxPython` and `Dlib` installed, you can run this project on your mac
 
 `from Facial_feature_based_system_Demo import system_UI_demo1`
 
-`demo = system_UI_demo1()`
+demo = system_UI_demo1()
 
-`demo.MainLoop()`
+demo.MainLoop()`
