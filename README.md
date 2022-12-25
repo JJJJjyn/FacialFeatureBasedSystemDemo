@@ -3,6 +3,9 @@
 This is a fatigue detection system based on facial features.
 
 
+Please download `shape_predictor_68_face_landmarks.dat` in release before using it, and put it in your path
+
+
 `shape_predictor_68_face_landmarks.dat` is the 68 landmarks face detection model used in the system.
 
 
