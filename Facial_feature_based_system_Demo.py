@@ -663,7 +663,7 @@ class Fatigue_detection(wx.Frame):
         #for experiment3
         #self.all = []
         
-class main_demo1(wx.App):
+class system_UI_demo1(wx.App):
     def OnInit(self):
         self.frame = Fatigue_detection(parent=None)
         self.frame.Show(True)
