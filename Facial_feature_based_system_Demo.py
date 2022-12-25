@@ -442,7 +442,7 @@ class Fatigue_detection(wx.Frame):
                             #for experiment3
                             #self.all.append(self.FIX)
                         
-                        cv2.putText(im_rd, "Fixation variance: {}".format(self.FIX), (525, 30),cv2.FONT_HERSHEY_SIMPLEX, 
+                        cv2.putText(im_rd, "Gaze changes: {}".format(self.FIX), (525, 30),cv2.FONT_HERSHEY_SIMPLEX, 
                                     0.7, (193,182,255), 2)
                         #if len(self.all) > 7510:
                             #a = np.array(self.all[3750:7501])
