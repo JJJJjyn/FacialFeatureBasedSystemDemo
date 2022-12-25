@@ -382,7 +382,7 @@ class Fatigue_detection(wx.Frame):
         # dlib for face detect
         self.detector = dlib.get_frontal_face_detector()
         # 68-landmarks model
-        self.predictor = dlib.shape_predictor("C:/Users/jyn/shape_predictor_68_face_landmarks.dat")
+        self.predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
         self.m_textCtrl3.AppendText(u"Successfully load 68-landmarks model!!!\n")
         # facial feature index
         (lStart, lEnd) = face_utils.FACIAL_LANDMARKS_IDXS["left_eye"]
