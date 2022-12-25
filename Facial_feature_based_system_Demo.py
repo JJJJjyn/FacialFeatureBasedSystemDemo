@@ -13,7 +13,7 @@ import argparse
 import imutils
 import datetime,time
 import math
-from sklearn.preprocessing import StandardScaler
+from sklearn import preprocessing
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
@@ -120,8 +120,7 @@ class Fatigue_detection(wx.Frame):
         self.m_staticText1.Wrap(-1)
         bSizer101.Add(self.m_staticText1, 0, wx.TOP|wx.BOTTOM|wx.LEFT, 5)
         
-        m_listBox1Choices = [u"1",u"2", u"3", u"4", u"5", u"6", u"7", u"8", u"9", u"10", u"11", u"12", u"13", 
-                             u"14", u"15", u"16", u"17", u"18"]
+        m_listBox1Choices = [u"3", u"6",u"12",u"24",u"36",u"48",u"60",u"72"]
         self.m_listBox1 = wx.ListBox(sbSizer6.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.Size(48,24), m_listBox1Choices, 0)
         bSizer101.Add(self.m_listBox1, 0, wx.TOP|wx.BOTTOM|wx.RIGHT, 5)
         
@@ -287,6 +286,10 @@ class Fatigue_detection(wx.Frame):
         self.hTOTAL = 0
         self.PUPIL = []
         
+        
+        #for experiment3
+        #self.all = []
+        
         #3D reference point, the model from http://aifi.isr.uc.pt/Downloads/OpenGL/glAnthropometric3DModel.cpp
         self.object_pts = np.float32([[6.825897, 6.760612, 4.402142],  
                                  [1.330353, 7.122144, 6.903745],  
@@ -383,7 +386,7 @@ class Fatigue_detection(wx.Frame):
         # dlib for face detect
         self.detector = dlib.get_frontal_face_detector()
         # 68-landmarks model
-        self.predictor = dlib.shape_predictor("C:/Users/jyn/shape_predictor_68_face_landmarks.dat")
+        self.predictor = dlib.shape_predictor("D:/jyn/master/3/CS3/code/68landmarksmodel/shape_predictor_68_face_landmarks.dat")
         self.m_textCtrl3.AppendText(u"Successfully load 68-landmarks model!!!\n")
         # facial feature index
         (lStart, lEnd) = face_utils.FACIAL_LANDMARKS_IDXS["left_eye"]
@@ -411,13 +414,25 @@ class Fatigue_detection(wx.Frame):
                     shape = face_utils.shape_to_np(shape)
                     
                     #eyes-tracking
-                    if len(self.PUPIL) > 2*self.FIX_THRESH:
+                    if self.eyes_checkBox1.GetValue()== True:
+                        leftEye = shape[lStart:lEnd]
+                        rightEye = shape[rStart:rEnd]
+                        lp = np.mean(leftEye, axis = 0)
+                        lp = np.array([int(lp[0]),int(lp[1])])
+                        rp = np.mean(rightEye, axis = 0)
+                        rp = np.array([int(rp[0]),int(rp[1])])
+                        cv2.circle(im_rd, lp, 4, (0,0,255), -1, 8)
+                        cv2.circle(im_rd, rp, 4, (0,0,255), -1, 8)
+                        
+                        self.PUPIL.append(lp)
+                        self.PUPIL.append(rp)
+                        
+                        if len(self.PUPIL) > 2*self.FIX_THRESH:
                             del(self.PUPIL[0],self.PUPIL[0])
                             p = np.array(self.PUPIL)
                             scaler = preprocessing.MinMaxScaler().fit(p)
                             p = scaler.transform(p)
                             
-                            #self.FIX = round(np.std(p,ddof=1),2)
                             st = np.std(p,axis=0)
                             self.var.append(np.sqrt(st[0]**2+st[1]**2))
                             
@@ -425,10 +440,16 @@ class Fatigue_detection(wx.Frame):
                             del(self.var[0])
                             self.FIX = round(np.std(np.array(self.var)),4)
                             #for experiment3
-                            self.all.append(self.FIX)
+                            #self.all.append(self.FIX)
                         
-                        cv2.putText(im_rd, "Fixation variance: {}".format(self.FIX), (20, 30),cv2.FONT_HERSHEY_SIMPLEX, 
+                        cv2.putText(im_rd, "Fixation variance: {}".format(self.FIX), (525, 30),cv2.FONT_HERSHEY_SIMPLEX, 
                                     0.7, (193,182,255), 2)
+                        #if len(self.all) > 7510:
+                            #a = np.array(self.all[3750:7501])
+                            #m = [np.mean(a),np.max(a),np.min(a)]
+                            #print(m)
+
+
                     # yawn
                     if self.yawn_checkBox2.GetValue()== True:
                         mouth = shape[mStart:mEnd]
@@ -453,7 +474,7 @@ class Fatigue_detection(wx.Frame):
                         if self.m_radioBtn2.GetValue()== True:
                             #cv2.putText(im_rd, "COUNTER: {}".format(self.mCOUNTER), (150, 90),cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0,0,255), 2) 
                             cv2.putText(im_rd, "MAR: {:.2f}".format(mar), (300, 90),cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0,0,255), 2)
-                        cv2.putText(im_rd, "Yawning: {}".format(self.mTOTAL), (550, 90),cv2.FONT_HERSHEY_SIMPLEX, 0.7, (193,182,255), 2)
+                        cv2.putText(im_rd, "Yawning: {}".format(self.mTOTAL), (525, 90),cv2.FONT_HERSHEY_SIMPLEX, 0.7, (193,182,255), 2)
                     else:
                         pass
                     
@@ -485,7 +506,7 @@ class Fatigue_detection(wx.Frame):
                             #cv2.putText(im_rd, "Faces: {}".format(len(faces)), (150, 60),cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0,0,255), 2)     
                             #cv2.putText(im_rd, "COUNTER: {}".format(self.COUNTER), (150, 60),cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0,0,255), 2) 
                             cv2.putText(im_rd, "EAR: {:.2f}".format(ear), (300, 60),cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0,0,255), 2)
-                        cv2.putText(im_rd, "Blinks: {}".format(self.TOTAL), (550, 60),cv2.FONT_HERSHEY_SIMPLEX, 0.7, (193,182,255), 2)
+                        cv2.putText(im_rd, "Blinks: {}".format(self.TOTAL), (525, 60),cv2.FONT_HERSHEY_SIMPLEX, 0.7, (193,182,255), 2)
                     else:
                         pass
                     
@@ -520,7 +541,7 @@ class Fatigue_detection(wx.Frame):
                                         cv2.FONT_HERSHEY_SIMPLEX,0.75, (0,0,255), thickness=2)# BLUE
                             cv2.putText(im_rd, "Y: " + "{:7.2f}".format(yaw), (450, 120), 
                                         cv2.FONT_HERSHEY_SIMPLEX,0.75, (0,0,255), thickness=2)# RED    
-                        cv2.putText(im_rd, "Nod: {}".format(self.hTOTAL), (550, 120),cv2.FONT_HERSHEY_SIMPLEX, 0.7, (193,182,255), 2)
+                        cv2.putText(im_rd, "Nod: {}".format(self.hTOTAL), (525, 120),cv2.FONT_HERSHEY_SIMPLEX, 0.7, (193,182,255), 2)
                     else:
                         pass
                     
@@ -631,7 +652,6 @@ class Fatigue_detection(wx.Frame):
         self.m_textCtrl3.AppendText(u"Finish the detection!!!\n")
         #reset
         self.FIX = 0
-        self.var = []
         self.COUNTER = 0
         self.TOTAL = 0
         self.mCOUNTER = 0
@@ -639,8 +659,11 @@ class Fatigue_detection(wx.Frame):
         self.hCOUNTER = 0
         self.hTOTAL = 0
         self.PUPIL = []
+        self.var = []
+        #for experiment3
+        #self.all = []
         
-class system_UI_demo1(wx.App):
+class main_demo1(wx.App):
     def OnInit(self):
         self.frame = Fatigue_detection(parent=None)
         self.frame.Show(True)
