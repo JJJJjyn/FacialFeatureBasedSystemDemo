@@ -275,6 +275,7 @@ class Fatigue_detection(wx.Frame):
         #initialization
         # fixation
         self.FIX = 0
+        self.var = []
         # frame counter and blink total
         self.COUNTER = 0
         self.TOTAL = 0
@@ -410,29 +411,24 @@ class Fatigue_detection(wx.Frame):
                     shape = face_utils.shape_to_np(shape)
                     
                     #eyes-tracking
-                    if self.eyes_checkBox1.GetValue()== True:
-                        leftEye = shape[lStart:lEnd]
-                        rightEye = shape[rStart:rEnd]
-                        lp = np.mean(leftEye, axis = 0)
-                        lp = np.array([int(lp[0]),int(lp[1])])
-                        rp = np.mean(rightEye, axis = 0)
-                        rp = np.array([int(rp[0]),int(rp[1])])
-                        cv2.circle(im_rd, lp, 4, (0,0,255), -1, 8)
-                        cv2.circle(im_rd, rp, 4, (0,0,255), -1, 8)
-                        
-                        self.PUPIL.append(lp)
-                        self.PUPIL.append(rp)
-                        
-                        if len(self.PUPIL) > 2*self.FIX_THRESH:
+                    if len(self.PUPIL) > 2*self.FIX_THRESH:
                             del(self.PUPIL[0],self.PUPIL[0])
                             p = np.array(self.PUPIL)
-                            #trans = StandardScaler()
-                            #p = trans.fit_transform(p)
-                            self.FIX = round(np.std(p,ddof=1),2)
+                            scaler = preprocessing.MinMaxScaler().fit(p)
+                            p = scaler.transform(p)
+                            
+                            #self.FIX = round(np.std(p,ddof=1),2)
+                            st = np.std(p,axis=0)
+                            self.var.append(np.sqrt(st[0]**2+st[1]**2))
+                            
+                        if len(self.var) > 24:
+                            del(self.var[0])
+                            self.FIX = round(np.std(np.array(self.var)),4)
+                            #for experiment3
+                            self.all.append(self.FIX)
                         
-                        cv2.putText(im_rd, "Fixation variance: {}".format(self.FIX), (550, 30),cv2.FONT_HERSHEY_SIMPLEX, 
+                        cv2.putText(im_rd, "Fixation variance: {}".format(self.FIX), (20, 30),cv2.FONT_HERSHEY_SIMPLEX, 
                                     0.7, (193,182,255), 2)
-
                     # yawn
                     if self.yawn_checkBox2.GetValue()== True:
                         mouth = shape[mStart:mEnd]
@@ -635,6 +631,7 @@ class Fatigue_detection(wx.Frame):
         self.m_textCtrl3.AppendText(u"Finish the detection!!!\n")
         #reset
         self.FIX = 0
+        self.var = []
         self.COUNTER = 0
         self.TOTAL = 0
         self.mCOUNTER = 0
