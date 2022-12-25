@@ -4,7 +4,7 @@ This is a fatigue detection system demo based on facial features.
 
 
 
-Please download `shape_predictor_68_face_landmarks.dat` in release before using the demo, and put it in your path
+Please download `shape_predictor_68_face_landmarks.dat` in `Releases` before using the demo, and put it in your path
 
 
 
